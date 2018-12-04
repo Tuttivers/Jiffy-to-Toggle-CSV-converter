@@ -18,7 +18,11 @@ import static eu.tuttivers.csvjiffytotoggl.FileUtils.getPath;
 
 public class Converter {
 
-    private static final String header = "Email,Project,Start date,Start time,duration\n";
+    private static final String PODCAST_GURU = "\"Podcast guru\"";
+    private static final String PODCAST_GURU_URL = "https://reallyba.atlassian.net/projects/PG/issues/PG-";
+    private static final String QIWI = "\"Qiwi\"";
+    private static final String QIWI_URL = "https://gitlab.redriverapps.net/qiwimd/wallet-android/issues/";
+    private static final String header = "Email,Project,Start date,Start time,duration,Tags\n";
     private static final String email = "tuttivers@gmail.com";
 
     Context context;
@@ -48,24 +52,31 @@ public class Converter {
                         } else {
                             stringBuilder.append(email).append(',');
                             String[] columns = StringUtils.split(line, ',');
+                            String project = "";
                             for (int i = 0; i < columns.length; i++) {
                                 switch (i) {
                                     case 0: //project
-                                        stringBuilder.append(columns[i]);
+                                        project = columns[i];
+                                        stringBuilder.append(project).append(",");
                                         break;
                                     case 1: // start date and time
-                                        stringBuilder.append(columns[i].replace(" ", ","));
+                                        stringBuilder.append(columns[i].replace(" ", ",")).append(",");
                                         break;
                                     case 3: // duration
                                         int minutesRaw = Integer.parseInt(columns[i]);
                                         int hours = minutesRaw / 60;
                                         int minutes = minutesRaw % 60;
                                         stringBuilder.append(String.format("%d:%02d:00", hours, minutes));
+                                        stringBuilder.append(",");
                                         break;
-                                }
-
-                                if (i < columns.length - 2) {
-                                    stringBuilder.append(',');
+                                    case 4 : // tag
+                                        int task = Integer.parseInt(columns[i].replace("\"", ""));
+                                        if (project.equals(QIWI)) {
+                                            stringBuilder.append(QIWI_URL).append(task);
+                                        } else if (project.equals(PODCAST_GURU)) {
+                                            stringBuilder.append(PODCAST_GURU_URL).append(task);
+                                        }
+                                        break;
                                 }
                             }
                             stringBuilder.append("\n");
